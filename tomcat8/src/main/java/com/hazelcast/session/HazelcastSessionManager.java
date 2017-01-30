@@ -19,7 +19,6 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Session;
 import org.apache.catalina.session.ManagerBase;
-import org.apache.catalina.util.LifecycleSupport;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
@@ -32,8 +31,6 @@ public class HazelcastSessionManager extends ManagerBase implements Lifecycle, P
     private static final String NAME = "HazelcastSessionManager";
 
     private static final int DEFAULT_SESSION_TIMEOUT = 60;
-
-    protected LifecycleSupport lifecycle = new LifecycleSupport(this);
 
     private final Log log = LogFactory.getLog(HazelcastSessionManager.class);
 
@@ -60,21 +57,6 @@ public class HazelcastSessionManager extends ManagerBase implements Lifecycle, P
 
     @Override
     public void unload() throws IOException {
-    }
-
-    @Override
-    public void addLifecycleListener(LifecycleListener listener) {
-        lifecycle.addLifecycleListener(listener);
-    }
-
-    @Override
-    public LifecycleListener[] findLifecycleListeners() {
-        return lifecycle.findLifecycleListeners();
-    }
-
-    @Override
-    public void removeLifecycleListener(LifecycleListener listener) {
-        lifecycle.removeLifecycleListener(listener);
     }
 
     @Override
@@ -183,7 +165,7 @@ public class HazelcastSessionManager extends ManagerBase implements Lifecycle, P
         session.setNew(true);
         session.setValid(true);
         session.setCreationTime(System.currentTimeMillis());
-        session.setMaxInactiveInterval(getMaxInactiveInterval());
+        session.setMaxInactiveInterval(getContext().getSessionTimeout());
 
         String newSessionId = sessionId;
         if (newSessionId == null) {
@@ -327,9 +309,9 @@ public class HazelcastSessionManager extends ManagerBase implements Lifecycle, P
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("sessionTimeout")) {
-            setMaxInactiveInterval((Integer) evt.getNewValue() * DEFAULT_SESSION_TIMEOUT);
-        }
+//        if (evt.getPropertyName().equals("sessionTimeout")) {
+//            setMaxInactiveInterval((Integer) evt.getNewValue() * DEFAULT_SESSION_TIMEOUT);
+//        }
     }
 
     public String getMapName() {
