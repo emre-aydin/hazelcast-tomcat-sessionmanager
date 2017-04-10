@@ -1,5 +1,6 @@
 package com.hazelcast.session.nonsticky;
 
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.session.AbstractHazelcastSessionsTest;
@@ -122,5 +123,28 @@ public abstract class AbstractNonStickySessionsTest extends AbstractHazelcastSes
         String lastAccessTime2 = executeRequest("lastAccessTime", SERVER_PORT_2, cookieStore);
 
         assertNotEquals(lastAccessTime1, lastAccessTime2);
+    }
+
+    @Test(timeout = 80000)
+    public void testFailover() throws Exception {
+        CookieStore cookieStore = new BasicCookieStore();
+        String value = executeRequest("read", SERVER_PORT_1, cookieStore);
+        assertEquals("null", value);
+
+        executeRequest("write", SERVER_PORT_1, cookieStore);
+
+        instance1.stop();
+
+        HazelcastInstance hzInstance1 = Hazelcast.getHazelcastInstanceByName("hzInstance1");
+        if (hzInstance1 != null) {
+            hzInstance1.shutdown();
+        }
+
+        value = executeRequest("read", SERVER_PORT_2, cookieStore);
+        assertEquals("value", value);
+
+        executeRequest("writeAnother", SERVER_PORT_2, cookieStore);
+        value = executeRequest("readAnother", SERVER_PORT_2, cookieStore);
+        assertEquals("value2", value);
     }
 }

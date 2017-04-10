@@ -158,6 +158,10 @@ public abstract class AbstractStickySessionsTest extends AbstractHazelcastSessio
 
         value = executeRequest("read", SERVER_PORT_2, cookieStore);
         assertEquals("value", value);
+
+        executeRequest("writeAnother", SERVER_PORT_2, cookieStore);
+        value = executeRequest("readAnother", SERVER_PORT_2, cookieStore);
+        assertEquals("value2", value);
     }
 
 //    @Test

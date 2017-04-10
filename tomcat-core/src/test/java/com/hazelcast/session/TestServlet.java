@@ -22,8 +22,16 @@ public class TestServlet extends HttpServlet {
             session.setAttribute("key", "value");
             resp.getWriter().write("true");
 
+        } else if (req.getRequestURI().endsWith("writeAnother")) {
+            session.setAttribute("key2", "value2");
+            resp.getWriter().write("true");
+
         } else if (req.getRequestURI().endsWith("read")) {
             Object value = session.getAttribute("key");
+            resp.getWriter().write(value == null ? "null" : value.toString());
+
+        } else if (req.getRequestURI().endsWith("readAnother")) {
+            Object value = session.getAttribute("key2");
             resp.getWriter().write(value == null ? "null" : value.toString());
 
         } else if (req.getRequestURI().endsWith("remove")) {
